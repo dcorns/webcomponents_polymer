@@ -1,0 +1,25 @@
+{
+  "name": "webcomponents_polymer",
+  "version": "0.0.0",
+  "homepage": "https://github.com/dcorns/webcomponents_polymer",
+  "authors": [
+    "Dale Corns <drcorns@hotmail.com>"
+  ],
+  "description": "Some web components using polymer",
+  "main": "app.js",
+  "keywords": [
+    "node"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.0.0"
+  }
+}
