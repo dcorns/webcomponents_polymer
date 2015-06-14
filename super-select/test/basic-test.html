@@ -22,7 +22,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <body>
 
     <!-- You can use the document as a place to set up your fixtures. -->
-    <super-selecct></super-selecct>
+    <super-select></super-select>
 
     <script>
       var myEl = document.querySelector('super-select');
@@ -33,6 +33,19 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           assert.equal(myEl.author.name, 'Dale Corns');
           assert.equal(myEl.author.image, 'http://addyosmani.com/blog/wp-content/uploads/2013/04/unicorn.jpg');
         });
+        test('defines the "showAll" property', function(){
+          assert.equal(myEl.searchFactor, 0);
+        });
+        test('defines the "numToShow" property', function(){
+          assert.equal(myEl.numToShow, 5);
+        });
+        test('defines the "totalItems" property', function(){
+          assert.equal(myEl.totalItems, 0);
+        });
+        test('defines the "lastItemIndex" property', function(){
+          assert.equal(myEl.lastItemIndex, 0);
+        });
+
 
         test('says hello', function() {
           assert.equal(myEl.sayHello(), 'super-select says, Hello World!');
@@ -48,6 +61,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           });
           myEl.fireLasers();
         });
+
+          test('adds search text event listeners', function(){
+             myEl.addSearchTextListeners();
+
+          });
 
       });
     </script>
