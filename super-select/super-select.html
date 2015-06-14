@@ -53,7 +53,7 @@ Example:
     }
   </style>
   <template>
-    <section class="listStyle"><input><button>off</button><input class="numToShow" type="number" value="5"><ul></ul><section class="descStyle"></section></section>
+    <section class="listStyle"><input on-keyup="searchTxtKeyUp" on-mouseenter="searchTxtMouseEnter" on-mouseout="searchTxtMouseOut" on-click="searchTxtClick"><button on-click="preferenceBtn">off</button><input on-change="listSize" class="numToShow" type="number" value="5"><ul></ul><section class="descStyle"></section></section>
     <h1>&lt;super-select&gt;</h1>
     <content></content>
     <p class="author">
@@ -119,7 +119,9 @@ Example:
         type: Number,
         value: 0
       }
-
+//this.addSearchTextListeners();
+      //this.addPreferenceBtnListeners();
+      //this.addlistSizeListeners();
     },
 
     // Element Lifecycle
@@ -132,9 +134,7 @@ Example:
       //
       // This is the point where you should make modifications to the DOM (when
       // necessary), or kick off any processes the element wants to perform.
-      this.addSearchTextListeners();
-      this.addPreferenceBtnListeners();
-      this.addlistSizeListeners();
+
       console.dir(this.children[0].children[0]);
 
     },
@@ -184,55 +184,47 @@ Example:
     fireLasers: function() {
       this.fire('super-select-lasers', {sound: 'Pew pew!'});
     },
-    addSearchTextListeners: function(){
-      var searchTxt = this.children[0].children[0];
-      searchTxt.addEventListener('keyup', function(e){
-        console.log(e.target.value);
-      });
-      searchTxt.addEventListener('mouseenter', function(e){
-        e.target.style.backgroundColor = 'grey';
-      });
-      searchTxt.addEventListener('mouseout', function(e){
-        e.target.style.backgroundColor = 'white';
-      });
-      searchTxt.addEventListener('click', function(e){
-        e.target.style.backgroundColor = 'white';
-      });
+    searchTxtClick: function(e){
+      e.target.style.backgroundColor = 'white';
     },
-    addPreferenceBtnListeners: function(){
-      var preferenceBtn = this.children[0].children[1];
-      preferenceBtn.addEventListener('click', function(e){
-        var searchFactor = e.target.parentNode.parentNode.searchFactor;
-        switch(searchFactor){
+    searchTxtMouseOut: function(e){
+      e.target.style.backgroundColor = 'white';
+    },
+    searchTxtMouseEnter: function(e){
+      e.target.style.backgroundColor = 'grey';
+    },
+    searchTxtKeyUp: function(e){
+      console.log(e.target.value);
+    },
+    preferenceBtn: function(e){
+      var searchFactor = e.target.parentNode.parentNode.searchFactor;
+              switch(searchFactor){
           case 0:
             e.target.parentNode.parentNode.searchFactor = 1;
-            preferenceBtn.innerHTML = '1st';
+            e.target.innerHTML = '1st';
             break;
           case 1:
             e.target.parentNode.parentNode.searchFactor = 2;
-            preferenceBtn.innerHTML = 'all';
+            e.target.innerHTML = 'all';
             break;
           case 3:
             e.target.parentNode.parentNode.searchFactor = 0;
-            preferenceBtn.innerHTML = 'off';
+            e.target.innerHTML = 'off';
             break;
           default:
             e.target.parentNode.parentNode.searchFactor = 0;
-            preferenceBtn.innerHTML = 'off';
+            e.target.innerHTML = 'off';
             break;
         }
-        console.log(searchFactor);
-      });
-    },
-    addlistSizeListeners: function(){
-      var listSize = this.children[0].children[2];
+      console.log(e.target.innerHTML);
+      console.log(e.target.parentNode.parentNode.searchFactor);
+      },
 
-        listSize.addEventListener('change', function(e){
-        console.log(e.target.value);
-        console.log(e.target.parentNode.parentNode.numToShow);
-        e.target.parentNode.parentNode.numToShow = e.target.value;
-      });
-  }
+    listSize: function(e){
+      console.log(e.target.value);
+      console.log(e.target.parentNode.parentNode.numToShow);
+      e.target.parentNode.parentNode.numToShow = e.target.value;
+    }
 
   });
 
