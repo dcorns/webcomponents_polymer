@@ -54,6 +54,7 @@ Example:
   </style>
   <template>
     <section class="listStyle"><input on-keyup="searchTxtKeyUp" on-mouseenter="searchTxtMouseEnter" on-mouseout="searchTxtMouseOut" on-click="searchTxtClick"><button on-click="preferenceBtn">off</button><input on-change="listSize" class="numToShow" type="number" value="5"><ul></ul><section class="descStyle"></section></section>
+
     <h1>&lt;super-select&gt;</h1>
     <content></content>
     <p class="author">
@@ -61,6 +62,8 @@ Example:
       Cheers,<br/>
       <span class="name">{{author.name}}</span>
     </p>
+    <span>{{test()}}</span>
+    <input value="{{author.name::input}}">
   </template>
 
 </dom-module>
@@ -103,6 +106,22 @@ Example:
           };
         }
       },
+      itemlist:{
+        type:Array,
+        notify:true,
+        value: [],
+        observer: '_populateList'
+      },
+      associations:{
+        type: Array,
+        notify:true,
+        value: []
+      },
+      displayitems:{
+        type: Array,
+        notify:true,
+        value: []
+      },
       searchFactor: {
         type: Number,
         value: 0
@@ -119,24 +138,18 @@ Example:
         type: Number,
         value: 0
       }
-//this.addSearchTextListeners();
-      //this.addPreferenceBtnListeners();
-      //this.addlistSizeListeners();
     },
 
     // Element Lifecycle
 
     ready: function() {
       // `ready` is called after all elements have been configured, but
-      // propagat
+      // propagate
       //es bottom-up. This element's children are ready, but parents
       // are not.
       //
       // This is the point where you should make modifications to the DOM (when
       // necessary), or kick off any processes the element wants to perform.
-
-      console.dir(this.children[0].children[0]);
-
     },
 
     attached: function() {
@@ -146,6 +159,7 @@ Example:
       // This is a good place to perform any work related to your element's
       // visual state or active behavior (measuring sizes, beginning animations,
       // loading resources, etc).
+
     },
 
     detached: function() {
@@ -221,9 +235,69 @@ Example:
       },
 
     listSize: function(e){
-      console.log(e.target.value);
-      console.log(e.target.parentNode.parentNode.numToShow);
       e.target.parentNode.parentNode.numToShow = e.target.value;
+      e.target.nextSibling.style.height = (e.target.value * 20).toString()+'px';
+    },
+    test: function(){//example of computed bind
+      return 'Dale Corns';
+    },
+    _populateList: function(){
+
+     if(this.displayitems && this.displayitems.length > 0){
+        var len = this.itemlist.length, c = this.lastItemIndex, el, sSDescriptions = this.children[0].children[4];
+       var titles = this.displayitems, items = this.itemlist, itemList = this.children[0].children[3];
+       var extraTitles = titles.length > 1;
+        for(c;c<len;c++){
+          el = document.createElement('li');
+          el.innerHTML = items[c][titles[0].prop];
+          if(extraTitles){
+            var len2 = titles.length, c2 = 1;
+            for(c2;c2<len2;c2++){
+              el.setAttribute('data-' + titles[c2].prop, {item: items[c][titles[c2].prop], tag: titles[c2].tag});
+              el.setAttribute('data-tag', titles[c2].tag);
+            }
+            el.addEventListener('mouseenter', function(e){
+              e.target.style.backgroundColor = 'grey';
+              var data = e.target.dataset;
+              var sSDescKids = sSDescriptions.children;
+              for(var prop in data){
+                if(data.hasOwnProperty(prop)){
+                  c2 = 0;  len2 = sSDescKids.length;
+                  for(c2;c2<len2;c2++){
+                    if(prop === sSDescKids[c2].innerHTML.toLowerCase()){
+                      //ok, need to put the attrubutes for label and tag on li and use it to create labels and tags each time
+                      c2++;
+                      sSDescKids[c2].innerHTML = data[prop];
+                    }
+                  }
+                }
+              }
+
+            });
+            el.addEventListener('mouseout', function(e){e.target.style.backgroundColor = 'white';});
+          }
+          else{
+            el.addEventListener('mouseenter', function(e){e.target.style.backgroundColor = 'grey';});
+            el.addEventListener('mouseout', function(e){e.target.style.backgroundColor = 'white';});
+          }
+          itemList.appendChild(el);
+        }
+        if(extraTitles){
+          //var descData;
+          len = titles.length; c = 1;
+          for(c;c<len;c++){
+            el = document.createElement('label');
+            el.innerHTML = titles[c].prop;
+            el.style.paddingRight = '10px';
+            el.style.display = 'flex';
+//            descData = document.createElement('label');
+//            descData.style.display = 'flex';
+            sSDescriptions.appendChild(el);
+           // sSDescriptions.appendChild(descData);
+          }
+        }
+      }
+//      console.dir(this);
     }
 
   });
