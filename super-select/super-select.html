@@ -1,11 +1,6 @@
 <!--
 @license
-Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
-This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
-The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
-The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
-Code distributed by Google as part of the polymer project is also
-subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+Copyright (c) 2015 Dale Corns. All rights reserved.
 -->
 <link rel="import" href="../polymer/polymer.html">
 
@@ -36,7 +31,7 @@ Example:
       width: 30px;
     }
     .listStyle {
-      border: 3px solid;
+      border: 3px gray solid;
       width: 245px;
       display: block;
     }
@@ -46,16 +41,18 @@ Example:
       padding: 0;
       height: 100px;
       display: block;
-      overflow: scroll;
+      overflow-y: scroll;
     }
     .descStyle{
-      border-right: 3px black dotted;
+      border: 3px black inset;
     }
+
   </style>
   <template>
-    <section class="listStyle"><input on-keyup="searchTxtKeyUp" on-mouseenter="searchTxtMouseEnter" on-mouseout="searchTxtMouseOut" on-click="searchTxtClick"><button on-click="preferenceBtn">off</button><input on-change="listSize" class="numToShow" type="number" value="5"><ul></ul><section class="descStyle"></section></section>
+    <section class="listStyle"><input on-keyup="searchTxtKeyUp" on-mouseenter="searchTxtMouseEnter" on-mouseout="searchTxtMouseOut" on-click="searchTxtClick"><button on-click="preferenceBtn">off</button><input on-change="listSize" class="numToShow" type="number" value="5"><ul on-click="ulClicked"></ul><section class="descStyle"></section></section>
 
     <h1>&lt;super-select&gt;</h1>
+    <span>{{selectedItem}}</span>
     <content></content>
     <p class="author">
       <img src="{{author.image}}">
@@ -137,6 +134,11 @@ Example:
       lastItemIndex: {
         type: Number,
         value: 0
+      },
+      selectedItem:{
+        type: Object,
+        notify: true,
+        value: {}
       }
     },
 
@@ -234,6 +236,14 @@ Example:
       console.log(e.target.parentNode.parentNode.searchFactor);
       },
 
+    ulClicked: function(e){
+      //console.dir(e.path[1]);
+      //e.path[1].style.overflow = 'hidden';
+      //e.target.style.fontWeight = 'bolder';
+      this.selectedItem = e.target.innerHTML;
+      console.dir(e.target);
+    },
+
     listSize: function(e){
       e.target.parentNode.parentNode.numToShow = e.target.value;
       e.target.nextSibling.style.height = (e.target.value * 20).toString()+'px';
@@ -244,35 +254,44 @@ Example:
     _populateList: function(){
 
      if(this.displayitems && this.displayitems.length > 0){
-        var len = this.itemlist.length, c = this.lastItemIndex, el, sSDescriptions = this.children[0].children[4];
+       var len = this.itemlist.length, c = this.lastItemIndex, el, sSDescriptions = this.children[0].children[4];
        var titles = this.displayitems, items = this.itemlist, itemList = this.children[0].children[3];
        var extraTitles = titles.length > 1;
-        for(c;c<len;c++){
+        sSDescriptions.style.overflowX = 'scroll';
+
+       for(c;c<len;c++){
           el = document.createElement('li');
           el.innerHTML = items[c][titles[0].prop];
           if(extraTitles){
             var len2 = titles.length, c2 = 1;
             for(c2;c2<len2;c2++){
-              el.setAttribute('data-' + titles[c2].prop, {item: items[c][titles[c2].prop], tag: titles[c2].tag});
-              el.setAttribute('data-tag', titles[c2].tag);
+              el.setAttribute('data-' + titles[c2].prop, JSON.stringify({iData: items[c][titles[c2].prop], iTag: titles[c2].tag}));
             }
             el.addEventListener('mouseenter', function(e){
               e.target.style.backgroundColor = 'grey';
-              var data = e.target.dataset;
-              var sSDescKids = sSDescriptions.children;
+              var data = e.target.dataset, p, lbl, txt;
+              sSDescriptions.innerHTML = '';
+              var liData;
               for(var prop in data){
                 if(data.hasOwnProperty(prop)){
-                  c2 = 0;  len2 = sSDescKids.length;
-                  for(c2;c2<len2;c2++){
-                    if(prop === sSDescKids[c2].innerHTML.toLowerCase()){
-                      //ok, need to put the attrubutes for label and tag on li and use it to create labels and tags each time
-                      c2++;
-                      sSDescKids[c2].innerHTML = data[prop];
-                    }
+                  liData = JSON.parse(data[prop]);
+                  p = document.createElement('p');
+                  p.style.margin = '0px';
+                  lbl = document.createElement('h4');
+                  lbl.style.margin = '0px';
+                  lbl.innerHTML=prop.toString().toUpperCase() + ': ';
+                  if(liData.iTag === 'a'){
+                    txt = document.createElement(liData.iTag);
+                    txt.setAttribute('href', liData.iData);
                   }
+                  else{
+                    txt = document.createElement(liData.iTag);
+                  }
+                  txt.innerHTML = liData.iData;
+                  p.appendChild(lbl); p.appendChild(txt);
+                  sSDescriptions.appendChild(p);
                 }
               }
-
             });
             el.addEventListener('mouseout', function(e){e.target.style.backgroundColor = 'white';});
           }
