@@ -49,10 +49,10 @@ Example:
 
   </style>
   <template>
-    <section class="listStyle"><input on-keyup="searchTxtKeyUp" on-mouseenter="searchTxtMouseEnter" on-mouseout="searchTxtMouseOut" on-click="searchTxtClick"><button on-click="preferenceBtn">off</button><input on-change="listSize" class="numToShow" type="number" value="5"><ul on-click="ulClicked"></ul><section class="descStyle"></section></section>
-
-    <h1>&lt;super-select&gt;</h1>
+    <section class="listStyle"><input id="searchTxt" on-keyup="searchTxtKeyUp" on-mouseenter="searchTxtMouseEnter" on-mouseout="searchTxtMouseOut" on-click="searchTxtClick" value="{{searchText::input}}"><button on-click="preferenceBtn">off</button><input on-change="listSize" class="numToShow" type="number" value="5"><ul id="ssul" on-click="ulClicked"></ul><section class="descStyle"></section></section>
     <span>{{selectedItem}}</span>
+    <h1>&lt;super-select&gt;</h1>
+
     <content></content>
     <p class="author">
       <img src="{{author.image}}">
@@ -119,9 +119,17 @@ Example:
         notify:true,
         value: []
       },
+      searchText: {
+        type: String,
+        notify:true,
+        value: '',
+        observer: '_search'
+      },
       searchFactor: {
         type: Number,
-        value: 0
+        notify: true,
+        value: 0,
+        observer: '_searchFactorChanged'
       },
       numToShow: {
         type: Number,
@@ -210,7 +218,7 @@ Example:
       e.target.style.backgroundColor = 'grey';
     },
     searchTxtKeyUp: function(e){
-      console.log(e.target.value);
+
     },
     preferenceBtn: function(e){
       var searchFactor = e.target.parentNode.parentNode.searchFactor;
@@ -232,14 +240,12 @@ Example:
             e.target.innerHTML = 'off';
             break;
         }
-      console.log(e.target.innerHTML);
-      console.log(e.target.parentNode.parentNode.searchFactor);
       },
 
     ulClicked: function(e){
       //console.dir(e.path[1]);
       //e.path[1].style.overflow = 'hidden';
-      //e.target.style.fontWeight = 'bolder';
+      e.target.style.fontWeight = 'bolder';
       this.selectedItem = e.target.innerHTML;
       console.dir(e.target);
     },
@@ -248,17 +254,50 @@ Example:
       e.target.parentNode.parentNode.numToShow = e.target.value;
       e.target.nextSibling.style.height = (e.target.value * 20).toString()+'px';
     },
+    _search: function(e){
+      var sf = this.searchFactor, c = 0;
+      var domItems = document.getElementById('ssul').children, len = domItems.length;
+      if(sf > 0){
+        var testText = e.toLocaleLowerCase(), itemText;
+        if(sf > 1){
+          for(c;c<len;c++){
+            itemText = domItems[c].textContent.toLocaleLowerCase();
+            if(itemText.indexOf(testText) > -1){
+              domItems[c].hidden = false;
+            }
+            else{
+              domItems[c].hidden = true;
+            }
+          }
+        }else{
+          var elen = testText.length;
+          for(c;c<len;c++){
+            itemText = domItems[c].textContent.toLocaleLowerCase();
+            if(itemText.slice(0,elen) === testText){
+              domItems[c].hidden = false;
+            }
+            else{
+              domItems[c].hidden = true;
+            }
+          }
+        }
+      }
+      else{
+        for(c;c<len;c++){
+            domItems[c].hidden = false;
+        }
+      }
+    },
     test: function(){//example of computed bind
       return 'Dale Corns';
     },
     _populateList: function(){
-
+console.log('_populateList');
      if(this.displayitems && this.displayitems.length > 0){
        var len = this.itemlist.length, c = this.lastItemIndex, el, sSDescriptions = this.children[0].children[4];
        var titles = this.displayitems, items = this.itemlist, itemList = this.children[0].children[3];
        var extraTitles = titles.length > 1;
-        sSDescriptions.style.overflowX = 'scroll';
-
+       sSDescriptions.style.overflowX = 'scroll';
        for(c;c<len;c++){
           el = document.createElement('li');
           el.innerHTML = items[c][titles[0].prop];
@@ -317,6 +356,17 @@ Example:
         }
       }
 //      console.dir(this);
+    },
+    _searchFactorChanged: function(){
+      var searchTxt = document.getElementById('searchTxt');
+      if(this.searchFactor > 0){
+        this._search(searchTxt.value);
+      }
+      else{
+        searchTxt.value = '';
+        this._search(searchTxt.value);
+      }
+
     }
 
   });
