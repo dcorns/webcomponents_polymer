@@ -1,6 +1,6 @@
 # super-select
 
-An element providing An element providing extensions to the select element.
+An element providing selection list with subject filtering, selectable auto completion, list sizing, and visual data associations.
 
 
 ## Dependencies
